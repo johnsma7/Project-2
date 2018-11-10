@@ -7,12 +7,13 @@ import javax.swing.*;
 
 public class ServerGUI extends JFrame implements ActionListener{
 	private JButton connect;
-	private JButton go;	
+	private JButton go;
+	private JButton search;	
 	private JTextField serverHN;
-	private JTextField PortNum;	
-	private JTextField usernym;
-	private JTextField hostnym;
-	private JTextField keywrd;
+	private JTextField portNum;	
+	private JTextField userNm;
+	private JTextField hostNm;
+	private JTextField keyWrd;
 	private JTextField command;
 	private JComboBox<String> speedy;
 	private JScrollPane options;
@@ -102,13 +103,14 @@ public class ServerGUI extends JFrame implements ActionListener{
         add(go, position);
         go.addActionListener(this);
         
-     // Place button for go
-        go = new JButton( "Search" );
+     // Place button for search
+        search = new JButton( "Search" );
         position.gridx = 5;
         position.gridy = 5;   
-        add(go, position);
-        go.addActionListener(this);
-        
+        add(search, position);
+        search.addActionListener(this);
+       
+        //my boi speedy	
         speedy = new JComboBox<String>(choices);
         position.gridx = 8;
         position.gridy = 3;   
@@ -130,37 +132,37 @@ public class ServerGUI extends JFrame implements ActionListener{
         add(serverHN, position);
         serverHN.addActionListener(this);
         
-        // Place text for PortNum
-        PortNum = new JTextField(15);
+        // Place text for portNum
+        portNum = new JTextField(15);
         position.gridwidth = 1;
         position.gridx = 6;
         position.gridy = 2;   
-        add(PortNum, position);
-        PortNum.addActionListener(this);
+        add(portNum, position);
+        portNum.addActionListener(this);
         
-        // Place text for total time
-        usernym = new JTextField(15);
+        // Place text for userNm
+        userNm = new JTextField(15);
         position.gridwidth = 1;
         position.gridx = 4;
         position.gridy = 3;   
-        add(usernym, position);
-        usernym.addActionListener(this);
+        add(userNm, position);
+        userNm.addActionListener(this);
         
-        // Place text for the time at the eatery
-        hostnym = new JTextField(15);
+        // Place text for hostNm
+        hostNm = new JTextField(15);
         position.gridwidth = 1;
         position.gridx = 6;
         position.gridy = 3;   
-        add(hostnym, position);
-        hostnym.addActionListener(this);
+        add(hostNm, position);
+        hostNm.addActionListener(this);
         
-        // Place text for when the person leaves
-        keywrd = new JTextField(15);
+        // Place text for keyWrd
+        keyWrd = new JTextField(15);
         position.gridwidth = 1;
         position.gridx = 4;
         position.gridy = 5;   
-        add(keywrd, position);
-        keywrd.addActionListener(this);
+        add(keyWrd, position);
+        keyWrd.addActionListener(this);
         
         // Place text for the number of eateries
         command = new JTextField(40);
@@ -183,8 +185,41 @@ public class ServerGUI extends JFrame implements ActionListener{
         
     }
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		Object which = e.getSource();
+		if(which == connect){
+			if(serverHN.getText().equals("")||portNum.getText().equals("")||userNm.getText().equals("")||hostNm.getText().equals("")){
+				System.out.println("error");
+			}else{
+				System.out.println("connecting...");
+				System.out.println(serverHN.getText());
+				System.out.println(portNum.getText());
+				System.out.println(userNm.getText());
+				System.out.println(hostNm.getText());
+			}
+		}
+		if(which == search){
+			if(!keyWrd.getText().equals("")){
+				System.out.println("searching...");
+				System.out.println(keyWrd.getText());
+			}else{
+				System.out.println("error");
+			}
+		}
+		if(which == speedy){
+			System.out.println("scoot scoot");
+			System.out.println(speedy.getSelectedItem());
+		}
+		if(which == go){
+			if(!command.getText().equals("")){
+				System.out.println("commanding...");
+				System.out.println(command.getText());
+			}else{
+				System.out.println("error");
+			}
+		}
+		
 		
 	}
     
