@@ -19,6 +19,8 @@ public class ServerGUI extends JFrame implements ActionListener{
 	private JScrollPane options;
 	private JTextArea textArea;
 
+	Host host = new Host();
+
 	String[] choices = { "Ethernet","CHOICE 2", "CHOICE 3","CHOICE 4","CHOICE 5","CHOICE 6"};
 	String[] header = {"speed","hostname","filename"};
 	Object[][] data = {
@@ -193,10 +195,19 @@ public class ServerGUI extends JFrame implements ActionListener{
 				System.out.println("error");
 			}else{
 				System.out.println("connecting...");
-				System.out.println(serverHN.getText());
-				System.out.println(portNum.getText());
-				System.out.println(userNm.getText());
-				System.out.println(hostNm.getText());
+				//System.out.println(serverHN.getText());
+				//System.out.println(portNum.getText());
+				//System.out.println(userNm.getText());
+				//System.out.println(hostNm.getText());
+				
+				int port = Integer.parseInt(portNum.getText());
+				if(host.initConnection(serverHN.getText(), port)){
+					String speed = (String)speedy.getSelectedItem();
+					host.sendUsername(userNm.getText(),hostNm.getText(),speed);
+					System.out.println("connected");
+				}else{
+					System.out.println("error");
+				}
 			}
 		}
 		if(which == search){
@@ -207,14 +218,11 @@ public class ServerGUI extends JFrame implements ActionListener{
 				System.out.println("error");
 			}
 		}
-		if(which == speedy){
-			System.out.println("scoot scoot");
-			System.out.println(speedy.getSelectedItem());
-		}
 		if(which == go){
 			if(!command.getText().equals("")){
 				System.out.println("commanding...");
-				System.out.println(command.getText());
+				host.doCommand(command.getText());
+				System.out.println("commanded");
 			}else{
 				System.out.println("error");
 			}

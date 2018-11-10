@@ -22,55 +22,64 @@ public class Host {
         BufferedReader inFromUser;
 
     public static void main(String[] args){
-        FTPClient client = new FTPClient();
-        FTPServer server = new FTPServer();
+       // FTPClient client = new FTPClient();
+       // FTPServer server = new FTPServer();
         //possibly just start the GUI class
 	
-	    BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+	//    BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
     }
 
     //host connects to the main server taking in the hostname and port from the GUI
     //initiate connection
-    public void initConnection(String server, String port){
+    public boolean initConnection(String server, int port){
         serverName = server;
         connectPort = port;
-        ControlSocket = new Socket(serverName, connectPort);
+	System.out.println(serverName);
+	if(port >0){
+		return true;
+	}
+	return false;
+     /*   ControlSocket = new Socket(serverName, connectPort);
         System.out.println("You are now connected to " + serverName);
         inFromUser= new BufferedReader(new InputStreamReader(System.in));//may not need
         outToServer = new DataOutputStream(ControlSocket.getOutputStream());
         inFromServer = new DataInputStream(new BufferedInputStream(ControlSocket.getInputStream()));
+	*/
     }
 
     //host sends username, hostname, and connection speed to the server
     //loops through files in the current directory and prompts user for description
     //adds to an array and send to server
-    public void sendUsername(String user, String host, String connection){  //is it reachable
+    public void sendUsername(String userNm, String hostNm, String speed){  //is it reachable
             connectPort = connectPort + 2;
-            outToServer.writeBytes(user + " " + host + " " + connection + '\n');
-            ServerSocket welcomeData = new ServerSocket(port);
-            Socket dataSocket = welcomeData.accept();
+           // outToServer.writeBytes(user + " " + host + " " + connection + '\n');
+           // ServerSocket welcomeData = new ServerSocket(port);
+          //  Socket dataSocket = welcomeData.accept();
 
-            BufferedReader inData = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
+         //   BufferedReader inData = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
 
-            System.out.println("");
-            System.out.println("Files on server:");
+            System.out.println("Username: "+userNm);
+	    System.out.println("Hostname: "+hostNm);
+	    System.out.println("Speed: "+speed);
 
             //prints out the list of files available from the server.
-            modifiedSentence = inData.readLine();
+        //    modifiedSentence = inData.readLine();
 
-            String[] list = modifiedSentence.split(" ");
+       //     String[] list = modifiedSentence.split(" ");
 
-            for (String s : list
-            ) {
-                System.out.println(s);
-            }
+      //      for (String s : list
+       //     ) {
+       //         System.out.println(s);
+       //     }
 
-            System.out.println("(End of files)");
-            welcomeData.close();
-            dataSocket.close();
+          //  welcomeData.close();
+          //  dataSocket.close();
     }
     
 
+    public void doCommand(String command){
+	    System.out.println("Command: "+command);
+    }
     //searches for keyword in description
 
     //connects to the the other host server listed in the table
