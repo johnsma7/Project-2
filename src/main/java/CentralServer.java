@@ -2,6 +2,9 @@
 import com.healthmarketscience.jackcess.*;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Database;
+import com.sun.org.apache.xerces.internal.parsers.XMLParser;
+import org.w3c.dom.Document;
+
 import javax.xml.parsers.*;
 
 import java.awt.*;
@@ -11,7 +14,7 @@ import java.net.*;
 import java.io.*;
 
 /*
-    Layout of the gvnapster.mdb file:
+    Layout of the gv.mdb file:
 
     Table SharedFiles has fields:
         fileID (int)
@@ -105,7 +108,14 @@ class CentralClientHandler extends Thread{
                 nextLine = inFromClient.readLine();
             }
 
-            /*TODO: Parse the xml file and add the relevant data to the database */
+            /*TODO: Parse the xml file and add the relevant data to the database
+            *
+            * Parsing stuff found at https://www.mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
+            * */
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document d = dBuilder.parse(x);
 
 
 
