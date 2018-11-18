@@ -202,6 +202,7 @@ class CentralClientHandler extends Thread{
                          fileList) {
                         outToClient.writeBytes(s + "\n");
                     }
+                    outToClient.writeBytes("EOF\n");
 
                 } else {
                     System.out.println("Unexpected start line.");
