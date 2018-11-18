@@ -19,6 +19,8 @@ public class ServerGUI extends JFrame implements ActionListener{
 	private JScrollPane options;
 	private JTextArea textArea;
 
+	private
+
 	String[] choices = { "Ethernet","CHOICE 2", "CHOICE 3","CHOICE 4","CHOICE 5","CHOICE 6"};
 	String[] header = {"speed","hostname","filename"};
 	Object[][] data = {
@@ -28,6 +30,8 @@ public class ServerGUI extends JFrame implements ActionListener{
 		};
     public static void main(String args[]){
        ServerGUI gui = new ServerGUI();
+       FTPServer server = new FTPServer();
+
 
        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        gui.setTitle("GV-NAPSTER Host");
@@ -219,8 +223,7 @@ public class ServerGUI extends JFrame implements ActionListener{
 				System.out.println("error");
 			}
 		}
-		
-		
+
 	}
     
 

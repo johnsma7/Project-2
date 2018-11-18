@@ -1,10 +1,13 @@
 
 import com.healthmarketscience.jackcess.*;
+import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Database;
 import com.sun.org.apache.xerces.internal.parsers.XMLParser;
 import org.w3c.dom.Document;
-
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import javax.xml.parsers.*;
 
 import java.awt.*;
@@ -93,44 +96,116 @@ class CentralClientHandler extends Thread{
 
     @Override
     public void run(){
-
-        // Read in the xml file line by line and add the information to the database.
-        // This should only be done the first time that a host connects to the cs.
-        try {
-
-            String nextLine = inFromClient.readLine();
-            File x = new File("fromClient.xml");
-            BufferedWriter bw = new BufferedWriter(new FileWriter(x));
-            while (!nextLine.equals("EOF") || nextLine == null) {
-
-                bw.write(nextLine);
-
-                nextLine = inFromClient.readLine();
-            }
-
-            /*TODO: Parse the xml file and add the relevant data to the database
-            *
-            * Parsing stuff found at https://www.mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
-            * */
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document d = dBuilder.parse(x);
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        /*TODO: This is where the cs waits for the keyword search from the host
-            and returns the desired information in a series of strings. */
-
         while(true){
             try {
+            /* This is where the cs waits for the keyword search from the host
+                and returns the desired information in a series of strings. */
+
+                String nextLine = inFromClient.readLine();
+
+                /* This should only be done the first time that a host connects to the cs.
+                 * The first line should look like :
+                 * init username hostname speed\n
+                 *
+                 * The second line will be the start of the xml file
+                 * */
+                if (nextLine.startsWith("init")) {
+
+                    // Grab the other things from the first line
+                    // and throw them in the database.
+                    String[] line = nextLine.split(" ");
+
+                    int usersRowCount = users.getRowCount();
+
+                    users.addRow(usersRowCount + 1, line[1], line[2], client.getInetAddress().getHostAddress(), client.getPort(), line[3]);
+
+                    // Read in the xml file line by line and add the information to the database.
+                    // Start reading in the xml file:
+                    nextLine = inFromClient.readLine();
+                    File x = new File("fromClient.xml");
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(x));
+                    while (!nextLine.equals("EOF") || nextLine != null) {
+
+                        bw.write(nextLine);
+
+                        nextLine = inFromClient.readLine();
+                    }
+
+                    // Close the file writer
+                    bw.close();
 
 
+                    /* Parse the xml file and add the relevant data to the database
+                     *
+                     * Parsing stuff found at https://www.mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
+                     * */
+
+                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    Document d = dBuilder.parse(x);
+
+                    d.getDocumentElement().normalize();
+
+                    //Debugging line
+                    System.out.println("Root: " + d.getDocumentElement().getNodeName());
+
+                    // The list of <file> tags
+                    NodeList nList = d.getElementsByTagName("file");
+
+                    //This loop will grab each file and add the relevant info to the database file.
+                    for (int fileCount = 0; fileCount < nList.getLength(); fileCount++) {
+                        Node file = nList.item(fileCount);
+                        int filesRowCount = sharedFiles.getRowCount();
+                        if(file.getNodeType() == Node.ELEMENT_NODE){
+                            Element element = (Element) file;
+                            String[] n = element.getElementsByTagName("name").item(0).getTextContent().split("/.");
+                            sharedFiles.addRow(filesRowCount + 1, usersRowCount + 1, n[0], n[1],
+                                    element.getElementsByTagName("description").item(0).getTextContent());
+
+                        }
+                    }
+
+                } else if (nextLine.startsWith("key")){
+                    // For the keyword search the first line should be:
+                    // key <keyword>\n
+
+                    String[] line = nextLine.split(" ");
+                    ArrayList<String> fileList = new ArrayList<String>();
+                    Column nameColumn = sharedFiles.getColumn("name");
+                    Column descipColumn = sharedFiles.getColumn("description");
+
+                    // Search through the file names for the keyword
+                    IndexCursor filesCursor = CursorBuilder.createCursor(sharedFiles.getIndex("name"));
+                    IndexCursor usersCursor = CursorBuilder.createCursor(users.getIndex("userID"));
+
+                    for (Row r: filesCursor.newEntryIterable(line[1])) {
+                        for (Row ur: usersCursor.newEntryIterable(r.get("userID"))){
+                            fileList.add(ur.get("speed") + " " + ur.get("hostName") +"/" + ur.get("ipAddress") +
+                                    " " + r.get("name") + r.get("type"));
+                        }
+                    }
+
+                    // Search through the file description for the keyword
+                    filesCursor = CursorBuilder.createCursor(sharedFiles.getIndex("description"));
+                    usersCursor.reset();
+
+                    for (Row r: filesCursor.newEntryIterable(line[1])) {
+                        for (Row ur: usersCursor.newEntryIterable(r.get("userID"))){
+                            fileList.add(ur.get("speed") + " " + ur.get("hostName") +"/" + ur.get("ipAddress") +
+                                    " " + r.get("name") + r.get("type"));
+                        }
+                    }
+
+
+                    // Send everything to the client that asked for it
+                    for (String s:
+                         fileList) {
+                        outToClient.writeBytes(s + "\n");
+                    }
+
+                } else {
+                    System.out.println("Unexpected start line.");
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
